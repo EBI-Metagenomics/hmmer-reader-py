@@ -20,7 +20,7 @@ def num(v):
 
 
 class HMMEReader:
-    def __init__(self, filepath):
+    def __init__(self, file):
         self._header = ""
         self._metadata = []
         self._alphabet = []
@@ -30,20 +30,19 @@ class HMMEReader:
         self._insert = []
         self._trans = []
 
-        with open(filepath, "r") as fp:
-            self._header = strip(fp.readline())
+        self._header = strip(file.readline())
 
-            for line in fp:
-                if line.startswith("HMM "):
-                    break
-                key, value = line.split(" ", 1)
-                key = key.strip()
-                value = value.strip()
-                self._metadata.append((key, value))
+        for line in file:
+            if line.startswith("HMM "):
+                break
+            key, value = line.split(" ", 1)
+            key = key.strip()
+            value = value.strip()
+            self._metadata.append((key, value))
 
-            self._read_alphabet(line)
-            next(fp)
-            self._parse_matrix(fp)
+        self._read_alphabet(line)
+        next(file)
+        self._parse_matrix(file)
 
     @property
     def header(self):
@@ -120,6 +119,13 @@ class HMMEReader:
         return msg[:-1]
 
 
-def read(filepath):
-    return HMMEReader(filepath)
+def read(filepath_or_buffer):
+    """
+    Read HMMER file.
+    """
+    if hasattr(filepath_or_buffer, "readline"):
+        return HMMEReader(filepath_or_buffer)
+
+    with open(filepath_or_buffer, "r") as buffer:
+        return HMMEReader(buffer)
 
