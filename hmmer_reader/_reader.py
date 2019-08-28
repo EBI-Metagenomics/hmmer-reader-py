@@ -1,24 +1,6 @@
 from math import exp, inf
 
 
-def strip(s):
-    import re
-
-    return re.sub(" +", " ", s.strip())
-
-
-TRANS_DEF = ["MM", "MI", "MD", "IM", "II", "DM", "DD"]
-
-
-def num(v):
-    from math import inf
-
-    if v == "*":
-        return inf
-
-    return float(v)
-
-
 class HMMEReader:
     def __init__(self, file):
         self._header = ""
@@ -64,14 +46,22 @@ class HMMEReader:
     def M(self):
         return len(self._match) - 1
 
-    def match(self, i):
-        return {k: exp(-v) for k, v in self._match[i].items()}
+    def _get_node_probs(self, state, prob_space):
+        if prob_space:
+            f = lambda x: exp(-x)
+        else:
+            f = lambda x: x
 
-    def insert(self, i):
-        return {k: exp(-v) for k, v in self._insert[i].items()}
+        return {k: f(v) for k, v in state.items()}
 
-    def trans(self, i):
-        return {k: exp(-v) for k, v in self._trans[i].items()}
+    def match(self, i, prob_space=True):
+        return self._get_node_probs(self._match[i], prob_space)
+
+    def insert(self, i, prob_space=True):
+        return self._get_node_probs(self._insert[i], prob_space)
+
+    def trans(self, i, prob_space=True):
+        return self._get_node_probs(self._trans[i], prob_space)
 
     def _read_alphabet(self, line):
         line = strip(line)
@@ -79,6 +69,8 @@ class HMMEReader:
         self._alphabet = "".join(self._alphabet)
 
     def _parse_matrix(self, fp):
+        TRANS_DEF = ["MM", "MI", "MD", "IM", "II", "DM", "DD"]
+
         line = strip(fp.readline()).split(" ")[1:]
         self._compo = {a: num(b) for a, b in zip(self._alphabet, line)}
 
@@ -128,4 +120,20 @@ def read(filepath_or_buffer):
 
     with open(filepath_or_buffer, "r") as buffer:
         return HMMEReader(buffer)
+
+
+def strip(s):
+    import re
+
+    return re.sub(" +", " ", s.strip())
+
+
+def num(v):
+    from math import inf
+
+    if v == "*":
+        return inf
+
+    return float(v)
+
 
