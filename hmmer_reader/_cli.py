@@ -24,9 +24,11 @@ def get_version():
     return m.groups()[0][1:-1]
 
 
-@click.command(cls=command(either=[("match", "insert")]))
+@click.command(cls=command(either=[("alphabet", "length", "match", "insert")]))
 @click.version_option(get_version())
 @click.argument("filepath", type=click.Path(exists=True, dir_okay=False))
+@click.option("--alphabet", help="Show the alphabet.", is_flag=True, default=None)
+@click.option("--length", help="Show the model length.", is_flag=True, default=None)
 @click.option(
     "--match", help="Show the emission table of the given match state.", type=int
 )
@@ -39,19 +41,23 @@ def get_version():
     help="Show probabilities in negative log space: -log(p).",
     default=False,
 )
-def cli(filepath, match, insert, sort, log):
+def cli(filepath, alphabet, length, match, insert, sort, log):
     """
     Show information about HMMER files.
     """
     from ._reader import read
 
-    hmmer_file = read(filepath)
-    if all([match is None, insert is None]):
-        print(hmmer_file)
+    hmmer = read(filepath)
+    if all([not alphabet, not length, match is None, insert is None]):
+        print(hmmer)
+    elif alphabet:
+        print(hmmer.alphabet)
+    elif length:
+        print(hmmer.M)
     elif match is not None:
-        show(hmmer_file.alphabet, hmmer_file.match, match, sort, log)
+        show(hmmer.alphabet, hmmer.match, match, sort, log)
     elif insert is not None:
-        show(hmmer_file.alphabet, hmmer_file.insert, insert, sort, log)
+        show(hmmer.alphabet, hmmer.insert, insert, sort, log)
 
 
 def show(alphabet, node, idx, sort, log_space):
