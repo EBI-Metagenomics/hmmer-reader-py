@@ -5,14 +5,7 @@ from ._click import command
 def get_version():
     import re
     import hmmer_reader
-
-    try:
-        import importlib.resources as pkg_resources
-    except ImportError:
-        import importlib
-
-        pkg_resources = importlib.import_module("importlib_resources")
-        # Try backported to PY<37 `importlib_resources`.
+    import importlib_resources as pkg_resources
 
     content = pkg_resources.read_text(hmmer_reader, "__init__.py")
 

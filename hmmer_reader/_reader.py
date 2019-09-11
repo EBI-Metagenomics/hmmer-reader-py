@@ -46,14 +46,6 @@ class HMMEReader:
     def M(self):
         return len(self._match) - 1
 
-    def _get_node_probs(self, state, prob_space):
-        if prob_space:
-            f = lambda x: exp(-x)
-        else:
-            f = lambda x: x
-
-        return {k: f(v) for k, v in state.items()}
-
     def match(self, i, prob_space=True):
         return self._get_node_probs(self._match[i], prob_space)
 
@@ -62,6 +54,14 @@ class HMMEReader:
 
     def trans(self, i, prob_space=True):
         return self._get_node_probs(self._trans[i], prob_space)
+
+    def _get_node_probs(self, state, prob_space):
+        if prob_space:
+            f = lambda x: exp(-x)
+        else:
+            f = lambda x: x
+
+        return {k: f(v) for k, v in state.items()}
 
     def _read_alphabet(self, line):
         line = strip(line)
