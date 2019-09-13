@@ -29,11 +29,9 @@ def get_version():
 )
 @click.option("--sort/--no-sort", help="Sort by probability.", default=False)
 @click.option(
-    "--nlog/--no-nlog",
-    help="Show probabilities in negative log space: -log(p).",
-    default=False,
+    "--log/--no-log", help="Show probabilities in log space: log(p).", default=False
 )
-def cli(filepath, alphabet, length, match, insert, sort, nlog):
+def cli(filepath, alphabet, length, match, insert, sort, log):
     """
     Show information about HMMER files.
     """
@@ -47,15 +45,15 @@ def cli(filepath, alphabet, length, match, insert, sort, nlog):
     elif length:
         print(hmmer.M)
     elif match is not None:
-        show(hmmer.alphabet, hmmer.match, match, sort, nlog)
+        show(hmmer.alphabet, hmmer.match, match, sort, log)
     elif insert is not None:
-        show(hmmer.alphabet, hmmer.insert, insert, sort, nlog)
+        show(hmmer.alphabet, hmmer.insert, insert, sort, log)
 
 
 def show(alphabet, node, idx, sort, log_space):
 
     try:
-        values = [(a, node(idx, not log_space)[a]) for a in alphabet]
+        values = [(a, node(idx, log_space)[a]) for a in alphabet]
     except IndexError:
         raise click.ClickException(f"Index {idx} is higher than the model length.")
     if sort:
