@@ -57,7 +57,7 @@ class HMMEReader:
 
     def _get_node_probs(self, state, prob_space):
         if prob_space:
-            f = lambda x: exp(-x)
+            f = lambda x: exp(x)
         else:
             f = lambda x: x
 
@@ -74,7 +74,7 @@ class HMMEReader:
         line = strip(fp.readline()).split(" ")[1:]
         self._compo = {a: num(b) for a, b in zip(self._alphabet, line)}
 
-        self._match.append({a: inf for a in self._alphabet})
+        self._match.append({a: -inf for a in self._alphabet})
         self._match[0][self._alphabet[0]] = 0.0
 
         line = strip(fp.readline()).split(" ")[: len(self._alphabet)]
@@ -132,8 +132,8 @@ def num(v):
     from math import inf
 
     if v == "*":
-        return inf
+        return -inf
 
-    return float(v)
+    return -float(v)
 
 

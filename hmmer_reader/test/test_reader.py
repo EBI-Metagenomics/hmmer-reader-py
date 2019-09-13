@@ -15,7 +15,7 @@ def test_hmmer_reader():
     assert abs(hmmfile.match(2)["V"] - 0.1332937419515065) < 1e-6
     assert abs(hmmfile.insert(2)["V"] - 0.050530407257186674) < 1e-6
     assert abs(hmmfile.trans(83)["DD"] - 0.38897507965474065) < 1e-6
-    assert hmmfile.compo["N"] == 3.21795
+    assert abs(hmmfile.compo["N"] + 3.21795) < 1e-6
 
     output = str(hmmfile)
     assert "SM    hmmsearch -Z 45638612 -E 1000 --cpu 4 HMM pfamseq" in output

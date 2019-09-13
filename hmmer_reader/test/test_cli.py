@@ -49,8 +49,8 @@ def test_cli_frame():
 
         r = invoke(["PF02545.hmm", "--match", "1", "--nlog"])
         tbl = parse_table(r.stdout)
-        assert abs(tbl["A"] + log(0.063306327140559060)) < 1e-7
-        assert abs(tbl["C"] + log(0.004970275538839500)) < 1e-7
+        assert abs(tbl["A"] - log(0.063306327140559060)) < 1e-7
+        assert abs(tbl["C"] - log(0.004970275538839500)) < 1e-7
 
         r = invoke(["PF02545.hmm", "--insert", "166"])
         tbl = parse_table(r.stdout)
@@ -59,8 +59,8 @@ def test_cli_frame():
 
         r = invoke(["PF02545.hmm", "--insert", "166", "--nlog"])
         tbl = parse_table(r.stdout)
-        assert abs(tbl["M"] + log(0.014308521644640306)) < 1e-7
-        assert abs(tbl["Y"] + log(0.026916117721584094)) < 1e-7
+        assert abs(tbl["M"] - log(0.014308521644640306)) < 1e-7
+        assert abs(tbl["Y"] - log(0.026916117721584094)) < 1e-7
 
         r = invoke(["PF02545.hmm", "--match", "5", "--sort"])
         assert "A 0.6014030" in r.stdout.strip().split("\n")[0].strip()
