@@ -51,11 +51,16 @@ def cli(filepath, alphabet, length, match, insert, sort, log):
 
 
 def show(alphabet, node, idx, sort, log_space):
+    from numpy import exp
 
     try:
-        values = [(a, node(idx, log_space)[a]) for a in alphabet]
+        values = [(a, node(idx)[a]) for a in alphabet]
     except IndexError:
         raise click.ClickException(f"Index {idx} is higher than the model length.")
+
+    if not log_space:
+        values = [(v[0], exp(v[1])) for v in values]
+
     if sort:
         values = sorted(values, key=lambda x: x[1], reverse=not log_space)
 

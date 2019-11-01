@@ -12,9 +12,9 @@ def test_hmmer_reader():
     assert hmmfile.metadata[3] == ("LENG", "166")
     assert hmmfile.M == 166
     assert hmmfile.alphabet == "ACDEFGHIKLMNPQRSTVWY"
-    assert abs(hmmfile.match(2)["V"] - 0.1332937419515065) < 1e-6
-    assert abs(hmmfile.insert(2)["V"] - 0.050530407257186674) < 1e-6
-    assert abs(hmmfile.trans(83)["DD"] - 0.38897507965474065) < 1e-6
+    assert abs(hmmfile.match(2)["V"] - -2.0152) < 1e-6
+    assert abs(hmmfile.insert(2)["V"] - -2.98518) < 1e-6
+    assert abs(hmmfile.trans(83)["DD"] - -0.94424) < 1e-6
     assert abs(hmmfile.compo["N"] + 3.21795) < 1e-6
 
     output = str(hmmfile)

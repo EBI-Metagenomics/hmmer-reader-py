@@ -1,4 +1,4 @@
-from math import exp, inf
+from math import inf
 
 
 class HMMEReader:
@@ -46,20 +46,17 @@ class HMMEReader:
     def M(self):
         return len(self._match) - 1
 
-    def match(self, i, log_space=False):
-        return self._get_node_probs(self._match[i], log_space)
+    def match(self, i):
+        return self._get_node_probs(self._match[i])
 
-    def insert(self, i, log_space=False):
-        return self._get_node_probs(self._insert[i], log_space)
+    def insert(self, i):
+        return self._get_node_probs(self._insert[i])
 
-    def trans(self, i, log_space=False):
-        return self._get_node_probs(self._trans[i], log_space)
+    def trans(self, i):
+        return self._get_node_probs(self._trans[i])
 
-    def _get_node_probs(self, state, log_space):
-        emission = {k: v for k, v in state.items()}
-        if not log_space:
-            emission = {k: exp(v) for k, v in state.items()}
-        return emission
+    def _get_node_probs(self, state):
+        return {k: v for k, v in state.items()}
 
     def _read_alphabet(self, line):
         line = strip(line)
@@ -133,5 +130,3 @@ def num(v):
         return -inf
 
     return -float(v)
-
-
