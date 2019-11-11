@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from math import inf
 
 
@@ -31,8 +32,8 @@ class HMMEReader:
         return self._header
 
     @property
-    def metadata(self):
-        return self._metadata
+    def metadata(self) -> OrderedDict:
+        return OrderedDict(self._metadata)
 
     @property
     def compo(self):
