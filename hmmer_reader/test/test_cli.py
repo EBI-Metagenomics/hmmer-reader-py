@@ -63,8 +63,8 @@ def test_cli_frame():
         assert abs(tbl["Y"] - log(0.026916117721584094)) < 1e-7
 
         r = invoke(["PF02545.hmm", "--match", "5", "--sort"])
-        assert "A 0.6014030" in r.stdout.strip().split("\n")[0].strip()
-        assert "G 0.1542099" in r.stdout.strip().split("\n")[1].strip()
+        assert "A 0.6014030" in r.stdout.strip().splitlines()[0].strip()
+        assert "G 0.1542099" in r.stdout.strip().splitlines()[1].strip()
 
 
 def test_cli_exclusive_opts():
@@ -102,7 +102,7 @@ def test_cli_out_of_range():
 def parse_table(txt, sep=" "):
     txt = txt.strip()
     tbl = {}
-    for line in txt.split("\n"):
+    for line in txt.splitlines():
         k, v = line.split(sep, 1)
         tbl[k.strip()] = float(v.strip())
     return tbl

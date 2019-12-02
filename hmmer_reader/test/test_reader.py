@@ -9,7 +9,7 @@ def test_hmmer_reader():
     hmmfile = read(buffer)
 
     assert hmmfile.header == "HMMER3/f [3.1b2 | February 2015]"
-    assert hmmfile.metadata[3] == ("LENG", "166")
+    assert hmmfile.metadata["LENG"] == "166"
     assert hmmfile.M == 166
     assert hmmfile.alphabet == "ACDEFGHIKLMNPQRSTVWY"
     assert abs(hmmfile.match(2)["V"] - -2.0152) < 1e-6

@@ -16,6 +16,7 @@ class HMMEReader:
         self._header = strip(file.readline())
 
         for line in file:
+            line = line.strip()
             if line.startswith("HMM "):
                 break
             key, value = line.split(" ", 1)
