@@ -28,6 +28,7 @@ def test_cli_frame():
         assert "166" == r.stdout.strip()
 
         r = invoke(["PF02545.hmm", "--match", "0"])
+        print(r.stdout)
         tbl = parse_table(r.stdout)
         assert tbl["A"] == 1.0
         assert tbl["C"] == 0.0
