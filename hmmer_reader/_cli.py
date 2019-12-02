@@ -51,7 +51,7 @@ def cli(filepath, alphabet, length, match, insert, sort, log):
 
 
 def show(alphabet, node, idx, sort, log_space):
-    from numpy import exp
+    from math import exp
 
     try:
         values = [(a, node(idx)[a]) for a in alphabet]

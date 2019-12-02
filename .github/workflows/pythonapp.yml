@@ -23,7 +23,7 @@ jobs:
     - name: Test with pytest
       run: |
         pip install pytest --upgrade
-        python setup.py test --addopts "-s"
+        python setup.py test
     - name: Install it
       run: |
         pip install .
