@@ -37,17 +37,20 @@ def cli(filepath, alphabet, length, match, insert, sort, log):
     """
     from ._reader import read
 
-    hmmer = read(filepath)
-    if all([not alphabet, not length, match is None, insert is None]):
-        print(hmmer)
-    elif alphabet:
-        print(hmmer.alphabet)
-    elif length:
-        print(hmmer.M)
-    elif match is not None:
-        show(hmmer.alphabet, hmmer.match, match, sort, log)
-    elif insert is not None:
-        show(hmmer.alphabet, hmmer.insert, insert, sort, log)
+    hmmfile = read(filepath)
+
+    for hmmprof in hmmfile:
+        if all([not alphabet, not length, match is None, insert is None]):
+            print(hmmprof)
+        elif alphabet:
+            print(hmmprof.alphabet)
+        elif length:
+            print(hmmprof.M)
+        elif match is not None:
+            show(hmmprof.alphabet, hmmprof.match, match, sort, log)
+        elif insert is not None:
+            show(hmmprof.alphabet, hmmprof.insert, insert, sort, log)
+        print()
 
 
 def show(alphabet, node, idx, sort, log_space):

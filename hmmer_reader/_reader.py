@@ -2,7 +2,13 @@ from collections import OrderedDict
 from math import inf
 
 
-class HMMEReader:
+class ParsingError(Exception):
+    pass
+
+class EmptyBuffer(Exception):
+    pass
+
+class HMMERProfile:
     def __init__(self, file):
         self._header = ""
         self._metadata = []
@@ -13,16 +19,27 @@ class HMMEReader:
         self._insert = []
         self._trans = []
 
-        self._header = strip(file.readline())
+        first_line = file.readline()
+        if first_line == "":
+            raise EmptyBuffer()
 
+        self._header = strip(first_line)
+
+        abc_line_found = False
         for line in file:
+
             line = line.strip()
             if line.startswith("HMM "):
+                abc_line_found = True
                 break
+
             key, value = line.split(" ", 1)
             key = key.strip()
             value = value.strip()
             self._metadata.append((key, value))
+
+        if not abc_line_found:
+            raise ParsingError()
 
         self._read_alphabet(line)
         next(file)
@@ -108,15 +125,40 @@ class HMMEReader:
         return msg[:-1]
 
 
+class HMMERReader:
+    def __init__(self, filepath_or_buffer):
+
+        if hasattr(filepath_or_buffer, "readline"):
+            self._buffer = filepath_or_buffer
+        else:
+            self._buffer = open(filepath_or_buffer, "r")
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        try:
+            return HMMERProfile(self._buffer)
+        except EmptyBuffer:
+            if hasattr(self._buffer, "close"):
+                self._buffer.close()
+            raise StopIteration
+
+    def __del__(self):
+        if hasattr(self._buffer, "close"):
+            self._buffer.close()
+
+    def close(self):
+        if hasattr(self._buffer, "close"):
+            self._buffer.close()
+
+
+
 def read(filepath_or_buffer):
     """
     Read HMMER file.
     """
-    if hasattr(filepath_or_buffer, "readline"):
-        return HMMEReader(filepath_or_buffer)
-
-    with open(filepath_or_buffer, "r") as buffer:
-        return HMMEReader(buffer)
+    return HMMERReader(filepath_or_buffer)
 
 
 def strip(s):
