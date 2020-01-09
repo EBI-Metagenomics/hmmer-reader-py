@@ -23,6 +23,7 @@ def test_hmmer_reader():
 
     buffer.close()
 
+
 def test_hmmer_prof():
     from hmmer_reader import read
     import hmmer_reader.test

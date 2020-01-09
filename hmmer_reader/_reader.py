@@ -5,8 +5,10 @@ from math import inf
 class ParsingError(Exception):
     pass
 
+
 class EmptyBuffer(Exception):
     pass
+
 
 class HMMERProfile:
     def __init__(self, file):
@@ -151,7 +153,6 @@ class HMMERReader:
     def close(self):
         if hasattr(self._buffer, "close"):
             self._buffer.close()
-
 
 
 def read(filepath_or_buffer):
