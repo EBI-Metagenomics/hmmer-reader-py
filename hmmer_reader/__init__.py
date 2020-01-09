@@ -1,7 +1,7 @@
 from ._cli import cli
-from ._reader import HMMERReader, HMMERProfile, read
+from ._reader import HMMERParser, HMMERProfile, open_hmmer
 from ._testit import test
 
 __version__ = "0.0.1"
 
-__all__ = ["__version__", "read", "test", "cli", "HMMERReader", "HMMERProfile"]
+__all__ = ["__version__", "open_hmmer", "test", "cli", "HMMERParser", "HMMERProfile"]

@@ -35,22 +35,21 @@ def cli(filepath, alphabet, length, match, insert, sort, log):
     """
     Show information about HMMER files.
     """
-    from ._reader import read
+    from ._reader import open_hmmer
 
-    hmmfile = read(filepath)
-
-    for hmmprof in hmmfile:
-        if all([not alphabet, not length, match is None, insert is None]):
-            print(hmmprof)
-        elif alphabet:
-            print(hmmprof.alphabet)
-        elif length:
-            print(hmmprof.M)
-        elif match is not None:
-            show(hmmprof.alphabet, hmmprof.match, match, sort, log)
-        elif insert is not None:
-            show(hmmprof.alphabet, hmmprof.insert, insert, sort, log)
-        print()
+    with open_hmmer(filepath) as hmmfile:
+        for hmmprof in hmmfile:
+            if all([not alphabet, not length, match is None, insert is None]):
+                print(hmmprof)
+            elif alphabet:
+                print(hmmprof.alphabet)
+            elif length:
+                print(hmmprof.M)
+            elif match is not None:
+                show(hmmprof.alphabet, hmmprof.match, match, sort, log)
+            elif insert is not None:
+                show(hmmprof.alphabet, hmmprof.insert, insert, sort, log)
+            print()
 
 
 def show(alphabet, node, idx, sort, log_space):

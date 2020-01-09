@@ -1,5 +1,7 @@
+import pathlib
 from collections import OrderedDict
 from math import inf
+from typing import IO, Iterator, List, Union
 
 
 class ParsingError(Exception):
@@ -127,39 +129,69 @@ class HMMERProfile:
         return msg[:-1]
 
 
-class HMMERReader:
-    def __init__(self, filepath_or_buffer):
+class HMMERParser:
+    def __init__(self, file: Union[str, pathlib.Path, IO[str]]):
+        if isinstance(file, str):
+            file = pathlib.Path(file)
 
-        if hasattr(filepath_or_buffer, "readline"):
-            self._buffer = filepath_or_buffer
-        else:
-            self._buffer = open(filepath_or_buffer, "r")
+        if isinstance(file, pathlib.Path):
+            file = open(file, "r")
 
-    def __iter__(self):
-        return self
+        self._file = file
 
-    def __next__(self):
+    def read_profile(self) -> HMMERProfile:
+        """
+        Get the next profile.
+        """
         try:
-            return HMMERProfile(self._buffer)
+            return HMMERProfile(self._file)
         except EmptyBuffer:
-            if hasattr(self._buffer, "close"):
-                self._buffer.close()
             raise StopIteration
 
-    def __del__(self):
-        if hasattr(self._buffer, "close"):
-            self._buffer.close()
+    def read_profiles(self) -> List[HMMERProfile]:
+        """
+        Get the list of all profiles.
+        """
+        return [item for item in self]
 
     def close(self):
-        if hasattr(self._buffer, "close"):
-            self._buffer.close()
+        """
+        Close the associated stream.
+        """
+        self._file.close()
+
+    def __iter__(self) -> Iterator[HMMERProfile]:
+        while True:
+            try:
+                yield self.read_profile()
+            except StopIteration:
+                return
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exception_type, exception_value, traceback):
+        del exception_type
+        del exception_value
+        del traceback
+        self.close()
 
 
-def read(filepath_or_buffer):
+def open_hmmer(file: Union[str, pathlib.Path, IO[str]]) -> HMMERParser:
     """
-    Read HMMER file.
+    Open a HMMER file.
+
+    Parameters
+    ----------
+    file : Union[str, pathlib.Path, IO[str]]
+        File path or IO stream.
+
+    Returns
+    -------
+    parser : HMMERParser
+        HMMER parser.
     """
-    return HMMERReader(filepath_or_buffer)
+    return HMMERParser(file)
 
 
 def strip(s):

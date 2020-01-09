@@ -2,13 +2,13 @@ import importlib_resources as pkg_resources
 
 
 def test_hmmer_reader():
-    from hmmer_reader import read
+    from hmmer_reader import open_hmmer
     import hmmer_reader.test
 
     buffer = pkg_resources.open_text(hmmer_reader.test, "PF02545.hmm")
-    hmmfile = read(buffer)
+    hmmfile = open_hmmer(buffer)
 
-    hmmprof = next(hmmfile)
+    hmmprof = hmmfile.read_profile()
     assert hmmprof.header == "HMMER3/f [3.1b2 | February 2015]"
     assert hmmprof.metadata["LENG"] == "166"
     assert hmmprof.M == 166
@@ -25,13 +25,13 @@ def test_hmmer_reader():
 
 
 def test_hmmer_prof():
-    from hmmer_reader import read
+    from hmmer_reader import open_hmmer
     import hmmer_reader.test
 
     buffer = pkg_resources.open_text(hmmer_reader.test, "three-profs.hmm")
-    hmmfile = read(buffer)
+    hmmfile = open_hmmer(buffer)
 
-    hmmprof = next(hmmfile)
+    hmmprof = hmmfile.read_profile()
     assert hmmprof.header == "HMMER3/f [3.1b2 | February 2015]"
     assert hmmprof.metadata["LENG"] == "40"
     assert hmmprof.M == 40
@@ -44,10 +44,10 @@ def test_hmmer_prof():
     output = str(hmmprof)
     assert "SM    hmmsearch -Z 45638612 -E 1000 --cpu 4 HMM pfamseq" in output
 
-    hmmprof = next(hmmfile)
+    hmmprof = hmmfile.read_profile()
     assert hmmprof.metadata["LENG"] == "235"
 
-    hmmprof = next(hmmfile)
+    hmmprof = hmmfile.read_profile()
     assert hmmprof.metadata["LENG"] == "449"
 
     buffer.close()
