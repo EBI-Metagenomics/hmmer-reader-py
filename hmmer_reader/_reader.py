@@ -53,10 +53,6 @@ class HMMERProfile:
     def header(self):
         return self._header
 
-    # @property
-    # def metadata(self) -> OrderedDict:
-    #     return OrderedDict(self._metadata)
-
     @property
     def metadata(self) -> List[Tuple[str, str]]:
         return self._metadata
