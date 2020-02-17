@@ -10,7 +10,7 @@ def test_hmmer_reader():
 
     hmmprof = hmmfile.read_profile()
     assert hmmprof.header == "HMMER3/f [3.1b2 | February 2015]"
-    assert hmmprof.metadata["LENG"] == "166"
+    assert dict(hmmprof.metadata)["LENG"] == "166"
     assert hmmprof.M == 166
     assert hmmprof.alphabet == "ACDEFGHIKLMNPQRSTVWY"
     assert abs(hmmprof.match(2)["V"] - -2.0152) < 1e-6
@@ -33,7 +33,7 @@ def test_hmmer_prof():
 
     hmmprof = hmmfile.read_profile()
     assert hmmprof.header == "HMMER3/f [3.1b2 | February 2015]"
-    assert hmmprof.metadata["LENG"] == "40"
+    assert dict(hmmprof.metadata)["LENG"] == "40"
     assert hmmprof.M == 40
     assert hmmprof.alphabet == "ACDEFGHIKLMNPQRSTVWY"
     assert abs(hmmprof.match(2)["V"] - -2.72416) < 1e-6
@@ -45,9 +45,9 @@ def test_hmmer_prof():
     assert "SM    hmmsearch -Z 45638612 -E 1000 --cpu 4 HMM pfamseq" in output
 
     hmmprof = hmmfile.read_profile()
-    assert hmmprof.metadata["LENG"] == "235"
+    assert dict(hmmprof.metadata)["LENG"] == "235"
 
     hmmprof = hmmfile.read_profile()
-    assert hmmprof.metadata["LENG"] == "449"
+    assert dict(hmmprof.metadata)["LENG"] == "449"
 
     buffer.close()

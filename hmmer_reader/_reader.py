@@ -1,7 +1,7 @@
 import pathlib
 from collections import OrderedDict
 from math import inf
-from typing import IO, Iterator, List, Union
+from typing import IO, Iterator, List, Union, Tuple
 
 
 class ParsingError(Exception):
@@ -15,13 +15,13 @@ class EmptyBuffer(Exception):
 class HMMERProfile:
     def __init__(self, file):
         self._header = ""
-        self._metadata = []
-        self._alphabet = []
+        self._metadata: List[Tuple[str, str]] = []
+        self._alphabet: List[str] = []
         # model bg residue comp
-        self._compo = {}
-        self._match = []
-        self._insert = []
-        self._trans = []
+        self._compo: OrderedDict = OrderedDict()
+        self._match: List[OrderedDict] = []
+        self._insert: List[OrderedDict] = []
+        self._trans: List[OrderedDict] = []
 
         first_line = file.readline()
         if first_line == "":
@@ -53,12 +53,16 @@ class HMMERProfile:
     def header(self):
         return self._header
 
-    @property
-    def metadata(self) -> OrderedDict:
-        return OrderedDict(self._metadata)
+    # @property
+    # def metadata(self) -> OrderedDict:
+    #     return OrderedDict(self._metadata)
 
     @property
-    def compo(self):
+    def metadata(self) -> List[Tuple[str, str]]:
+        return self._metadata
+
+    @property
+    def compo(self) -> OrderedDict:
         return self._compo
 
     @property
@@ -69,17 +73,17 @@ class HMMERProfile:
     def M(self):
         return len(self._match) - 1
 
-    def match(self, i):
+    def match(self, i) -> OrderedDict:
         return self._get_node_probs(self._match[i])
 
-    def insert(self, i):
+    def insert(self, i) -> OrderedDict:
         return self._get_node_probs(self._insert[i])
 
-    def trans(self, i):
+    def trans(self, i) -> OrderedDict:
         return self._get_node_probs(self._trans[i])
 
-    def _get_node_probs(self, state):
-        return {k: v for k, v in state.items()}
+    def _get_node_probs(self, state) -> OrderedDict:
+        return OrderedDict([(k, v) for k, v in state.items()])
 
     def _read_alphabet(self, line):
         line = strip(line)
@@ -88,37 +92,40 @@ class HMMERProfile:
 
     def _parse_matrix(self, fp):
         TRANS_DEF = ["MM", "MI", "MD", "IM", "II", "DM", "DD"]
+        abc = self._alphabet
 
         line = strip(fp.readline()).split(" ")[1:]
-        self._compo = {a: num(b) for a, b in zip(self._alphabet, line)}
+        self._compo = OrderedDict([(a, num(b)) for a, b in zip(abc, line)])
 
-        self._match.append({a: -inf for a in self._alphabet})
-        self._match[0][self._alphabet[0]] = 0.0
+        self._match.append(OrderedDict([(a, -inf) for a in abc]))
+        self._match[0][abc[0]] = 0.0
 
-        line = strip(fp.readline()).split(" ")[: len(self._alphabet)]
-        self._insert.append({a: num(b) for (a, b) in zip(self._alphabet, line)})
+        line = strip(fp.readline()).split(" ")[: len(abc)]
+        self._insert.append(OrderedDict([(a, num(b)) for a, b in zip(abc, line)]))
 
-        line = strip(fp.readline()).split(" ")[: len(self._alphabet)]
-        self._trans.append({a: num(b) for (a, b) in zip(TRANS_DEF, line)})
+        line = strip(fp.readline()).split(" ")[: len(abc)]
+        self._trans.append(OrderedDict([(a, num(b)) for a, b in zip(TRANS_DEF, line)]))
 
         line = strip(fp.readline())
         while line != "//":
-            line = line.split(" ")[1 : len(self._alphabet) + 1]
-            self._match.append({a: num(b) for (a, b) in zip(self._alphabet, line)})
+            line = line.split(" ")[1 : len(abc) + 1]
+            self._match.append(OrderedDict([(a, num(b)) for a, b in zip(abc, line)]))
 
-            line = strip(fp.readline()).split(" ")[: len(self._alphabet)]
-            self._insert.append({a: num(b) for (a, b) in zip(self._alphabet, line)})
+            line = strip(fp.readline()).split(" ")[: len(abc)]
+            self._insert.append(OrderedDict([(a, num(b)) for a, b in zip(abc, line)]))
 
-            line = strip(fp.readline()).split(" ")[: len(self._alphabet)]
-            self._trans.append({a: num(b) for (a, b) in zip(TRANS_DEF, line)})
+            line = strip(fp.readline()).split(" ")[: len(abc)]
+            self._trans.append(
+                OrderedDict([(a, num(b)) for a, b in zip(TRANS_DEF, line)])
+            )
 
             line = strip(fp.readline())
 
     def __str__(self):
         msg = "File\n"
         msg += "----\n"
-        msg += f"Header       {self._header}\n"
-        msg += f"Alphabet     {self._alphabet}\n"
+        msg += f"Header       {self.header}\n"
+        msg += f"Alphabet     {self.alphabet}\n"
         msg += f"Model length {self.M}\n\n"
 
         msg += "Metadata\n"
