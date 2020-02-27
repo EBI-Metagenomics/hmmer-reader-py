@@ -25,7 +25,7 @@ class HMMERProfile:
 
         first_line = file.readline()
         if first_line == "":
-            raise ParsingError("Empty buffer.")
+            raise EmptyBuffer()
 
         self._header = strip(first_line)
 
