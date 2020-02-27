@@ -13,7 +13,7 @@ class EmptyBuffer(Exception):
 
 
 class HMMERProfile:
-    def __init__(self, file):
+    def __init__(self, file: IO[str]):
         self._header = ""
         self._metadata: List[Tuple[str, str]] = []
         self._alphabet: List[str] = []
@@ -25,25 +25,29 @@ class HMMERProfile:
 
         first_line = file.readline()
         if first_line == "":
-            raise EmptyBuffer()
+            raise ParsingError("Empty buffer.")
 
         self._header = strip(first_line)
 
         abc_line_found = False
-        for line in file:
+        line = ""
+        for i, line in enumerate(file):
 
             line = line.strip()
             if line.startswith("HMM "):
                 abc_line_found = True
                 break
 
-            key, value = line.split(" ", 1)
+            try:
+                key, value = line.split(" ", 1)
+            except ValueError:
+                raise ParsingError(f"Could not parse line {i}: {line}")
             key = key.strip()
             value = value.strip()
             self._metadata.append((key, value))
 
         if not abc_line_found:
-            raise ParsingError()
+            raise ParsingError("Alphabet line not found.")
 
         self._read_alphabet(line)
         next(file)
@@ -70,16 +74,13 @@ class HMMERProfile:
         return len(self._match) - 1
 
     def match(self, i) -> OrderedDict:
-        return self._get_node_probs(self._match[i])
+        return _get_node_probs(self._match[i])
 
     def insert(self, i) -> OrderedDict:
-        return self._get_node_probs(self._insert[i])
+        return _get_node_probs(self._insert[i])
 
     def trans(self, i) -> OrderedDict:
-        return self._get_node_probs(self._trans[i])
-
-    def _get_node_probs(self, state) -> OrderedDict:
-        return OrderedDict([(k, v) for k, v in state.items()])
+        return _get_node_probs(self._trans[i])
 
     def _read_alphabet(self, line):
         line = strip(line)
@@ -155,7 +156,7 @@ class HMMERParser:
         """
         Get the list of all profiles.
         """
-        return [item for item in self]
+        return list(self)
 
     def close(self):
         """
@@ -178,6 +179,10 @@ class HMMERParser:
         del exception_value
         del traceback
         self.close()
+
+
+def _get_node_probs(state) -> OrderedDict:
+    return OrderedDict(list(state.items()))
 
 
 def open_hmmer(file: Union[str, pathlib.Path, IO[str]]) -> HMMERParser:
@@ -204,8 +209,6 @@ def strip(s):
 
 
 def num(v):
-    from math import inf
-
     if v == "*":
         return -inf
 

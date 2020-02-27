@@ -1,7 +1,10 @@
 import click
 
 
-def command(either=[]):
+def command(either=None):
+    if either is None:
+        either = []
+
     class CommandOptionsTogether(click.Command):
         def invoke(self, ctx):
             eit = [list(t) for t in either]

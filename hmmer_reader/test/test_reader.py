@@ -1,4 +1,5 @@
 import importlib_resources as pkg_resources
+import pytest
 
 
 def test_hmmer_reader():
@@ -49,5 +50,31 @@ def test_hmmer_prof():
 
     hmmprof = hmmfile.read_profile()
     assert dict(hmmprof.metadata)["LENG"] == "449"
+
+    buffer.close()
+
+
+def test_hmmer_reader_invalid_file():
+    from hmmer_reader import open_hmmer, ParsingError
+    import hmmer_reader.test
+
+    buffer = pkg_resources.open_text(hmmer_reader.test, "A0ALD9.fasta")
+    hmmfile = open_hmmer(buffer)
+
+    with pytest.raises(ParsingError):
+        hmmfile.read_profile()
+
+    buffer.close()
+
+
+def test_hmmer_reader_corrupted_file():
+    from hmmer_reader import open_hmmer
+    import hmmer_reader.test
+
+    buffer = pkg_resources.open_text(hmmer_reader.test, "PF02545.hmm.br.corrupted")
+    hmmfile = open_hmmer(buffer)
+
+    with pytest.raises(UnicodeDecodeError):
+        hmmfile.read_profile()
 
     buffer.close()
