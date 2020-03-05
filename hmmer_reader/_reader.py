@@ -12,7 +12,7 @@ class EmptyBuffer(Exception):
     pass
 
 
-class HMMERProfile:
+class HMMERModel:
     def __init__(self, file: IO[str]):
         self._header = ""
         self._metadata: List[Tuple[str, str]] = []
@@ -143,18 +143,18 @@ class HMMERParser:
 
         self._file = file
 
-    def read_profile(self) -> HMMERProfile:
+    def read_model(self) -> HMMERModel:
         """
-        Get the next profile.
+        Get the next model.
         """
         try:
-            return HMMERProfile(self._file)
+            return HMMERModel(self._file)
         except EmptyBuffer:
             raise StopIteration
 
-    def read_profiles(self) -> List[HMMERProfile]:
+    def read_models(self) -> List[HMMERModel]:
         """
-        Get the list of all profiles.
+        Get the list of all models.
         """
         return list(self)
 
@@ -164,10 +164,10 @@ class HMMERParser:
         """
         self._file.close()
 
-    def __iter__(self) -> Iterator[HMMERProfile]:
+    def __iter__(self) -> Iterator[HMMERModel]:
         while True:
             try:
-                yield self.read_profile()
+                yield self.read_model()
             except StopIteration:
                 return
 
