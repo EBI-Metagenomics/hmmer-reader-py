@@ -1,8 +1,7 @@
 from ._cli import cli
-from ._reader import HMMERParser, HMMERModel, ParsingError, open_hmmer
+from ._reader import HMMERModel, HMMERParser, ParsingError, open_hmmer
 from ._testit import test
-
-__version__ = "0.0.4"
+from ._version import __version__
 
 __all__ = [
     "__version__",

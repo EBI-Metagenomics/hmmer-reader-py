@@ -1,22 +1,14 @@
 import click
 
 from ._click import command
-
-
-def get_version():
-    try:
-        from importlib import metadata
-    except ImportError:
-        # Running on pre-3.8 Python; use importlib-metadata package
-        import importlib_metadata as metadata
-    return metadata.version("hmmer-reader")
+from ._version import __version__
 
 
 @click.command(
     cls=command(either=[("alphabet", "length", "match", "insert")]),
     context_settings=dict(help_option_names=["-h", "--help"]),
 )
-@click.version_option(get_version())
+@click.version_option(__version__)
 @click.argument("filepath", type=click.Path(exists=True, dir_okay=False))
 @click.option("--alphabet", help="Show the alphabet.", is_flag=True, default=None)
 @click.option("--length", help="Show the model length.", is_flag=True, default=None)
