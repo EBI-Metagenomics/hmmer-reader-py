@@ -4,14 +4,12 @@ from ._click import command
 
 
 def get_version():
-    import re
-    import hmmer_reader
-    import importlib_resources as pkg_resources
-
-    content = pkg_resources.read_text(hmmer_reader, "__init__.py")
-    c = re.compile(r"__version__ *= *('[^']+'|\"[^\"]+\")")
-    m = c.search(content)
-    return m.groups()[0][1:-1]
+    try:
+        from importlib import metadata
+    except ImportError:
+        # Running on pre-3.8 Python; use importlib-metadata package
+        import importlib_metadata as metadata
+    return metadata.version("hmmer-reader")
 
 
 @click.command(
