@@ -1,6 +1,6 @@
-import importlib_resources as pkg_resources
 from math import isinf, log
 
+import importlib_resources as pkg_resources
 from click.testing import CliRunner
 
 import hmmer_reader
@@ -22,10 +22,10 @@ def test_cli_frame():
         assert "STATS LOCAL MSV       -9.9559  0.70785" in r.stdout
 
         r = invoke(["PF02545.hmm", "--alphabet"])
-        assert "ACDEFGHIKLMNPQRSTVWY" == r.stdout.strip()
+        assert r.stdout.strip() == "ACDEFGHIKLMNPQRSTVWY"
 
         r = invoke(["PF02545.hmm", "--length"])
-        assert "166" == r.stdout.strip()
+        assert r.stdout.strip() == "166"
 
         r = invoke(["PF02545.hmm", "--match", "0"])
         tbl = parse_table(r.stdout)
