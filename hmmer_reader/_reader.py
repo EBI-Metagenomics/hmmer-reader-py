@@ -1,7 +1,7 @@
 import pathlib
 from collections import OrderedDict
 from math import inf
-from typing import IO, Iterator, List, Union, Tuple
+from typing import IO, Iterator, List, Tuple, Union
 
 
 class ParsingError(Exception):

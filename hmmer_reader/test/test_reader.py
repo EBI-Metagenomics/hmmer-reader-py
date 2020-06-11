@@ -59,8 +59,10 @@ def test_hmmer_prof():
     from hmmer_reader import open_hmmer
     import hmmer_reader.test
 
-    buffer = pkg_resources.open_text(hmmer_reader.test, "three-profs.hmm")
-    hmmfile = open_hmmer(buffer)
+    buffer = pkg_resources.open_binary(hmmer_reader.test, "three-profs.hmm.gz")
+
+    content = gzip.decompress(buffer.read()).decode()
+    hmmfile = open_hmmer(StringIO(content))
 
     hmm = hmmfile.read_model()
     assert hmm.header == "HMMER3/f [3.1b2 | February 2015]"

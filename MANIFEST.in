@@ -4,5 +4,5 @@ include hmmer_reader/test/2OG-FeII_Oxy_3-nt.hmm.gz
 include hmmer_reader/test/A0ALD9.fasta
 include hmmer_reader/test/PF02545.hmm.br.corrupted
 include hmmer_reader/test/PF02545.hmm.gz
-include hmmer_reader/test/three-profs.hmm
+include hmmer_reader/test/three-profs.hmm.gz
 include version.py
