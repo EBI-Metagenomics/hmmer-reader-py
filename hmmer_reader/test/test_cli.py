@@ -1,3 +1,4 @@
+import gzip
 from math import isinf, log
 
 import importlib_resources as pkg_resources
@@ -8,7 +9,9 @@ import hmmer_reader
 
 def test_cli_frame():
 
-    text = pkg_resources.read_text(hmmer_reader.test, "PF02545.hmm")
+    buffer = pkg_resources.open_binary(hmmer_reader.test, "PF02545.hmm.gz")
+    text = gzip.decompress(buffer.read()).decode()
+
     runner = CliRunner()
     with runner.isolated_filesystem():
 
@@ -69,7 +72,9 @@ def test_cli_frame():
 
 def test_cli_exclusive_opts():
 
-    text = pkg_resources.read_text(hmmer_reader.test, "PF02545.hmm")
+    buffer = pkg_resources.open_binary(hmmer_reader.test, "PF02545.hmm.gz")
+    text = gzip.decompress(buffer.read()).decode()
+
     runner = CliRunner()
     with runner.isolated_filesystem():
 
@@ -85,7 +90,9 @@ def test_cli_exclusive_opts():
 
 def test_cli_out_of_range():
 
-    text = pkg_resources.read_text(hmmer_reader.test, "PF02545.hmm")
+    buffer = pkg_resources.open_binary(hmmer_reader.test, "PF02545.hmm.gz")
+    text = gzip.decompress(buffer.read()).decode()
+
     runner = CliRunner()
     with runner.isolated_filesystem():
 

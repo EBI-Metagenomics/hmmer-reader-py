@@ -91,7 +91,10 @@ class HMMERModel:
         TRANS_DEF = ["MM", "MI", "MD", "IM", "II", "DM", "DD"]
         abc = self._alphabet
 
-        line = strip(fp.readline()).split(" ")[1:]
+        line = strip(fp.readline()).split(" ")
+        if line[0] != "COMPO":
+            raise ValueError("Expected COMPO token.")
+        line = line[1:]
         self._compo = OrderedDict([(a, num(b)) for a, b in zip(abc, line)])
 
         self._match.append(OrderedDict([(a, -inf) for a in abc]))
@@ -100,7 +103,7 @@ class HMMERModel:
         line = strip(fp.readline()).split(" ")[: len(abc)]
         self._insert.append(OrderedDict([(a, num(b)) for a, b in zip(abc, line)]))
 
-        line = strip(fp.readline()).split(" ")[: len(abc)]
+        line = strip(fp.readline()).split(" ")[: len(TRANS_DEF)]
         self._trans.append(OrderedDict([(a, num(b)) for a, b in zip(TRANS_DEF, line)]))
 
         line = strip(fp.readline())
@@ -111,7 +114,7 @@ class HMMERModel:
             line = strip(fp.readline()).split(" ")[: len(abc)]
             self._insert.append(OrderedDict([(a, num(b)) for a, b in zip(abc, line)]))
 
-            line = strip(fp.readline()).split(" ")[: len(abc)]
+            line = strip(fp.readline()).split(" ")[: len(TRANS_DEF)]
             self._trans.append(
                 OrderedDict([(a, num(b)) for a, b in zip(TRANS_DEF, line)])
             )
