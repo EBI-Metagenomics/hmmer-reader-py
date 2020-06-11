@@ -16,7 +16,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install pip --upgrade
-        pip install setuptools wheel --upgrade
+        pip install setuptools wheel black isort flake8 --upgrade
     - name: Lint
       run: |
         flake8 hmmer_reader
