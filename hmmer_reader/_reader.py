@@ -3,6 +3,8 @@ from collections import OrderedDict
 from math import inf
 from typing import IO, Iterator, List, Tuple, Union
 
+__all__ = ["ParsingError", "HMMERModel", "HMMERParser", "open_hmmer"]
+
 
 class ParsingError(Exception):
     pass
@@ -13,6 +15,10 @@ class EmptyBuffer(Exception):
 
 
 class HMMERModel:
+    """
+    HMMER model.
+    """
+
     def __init__(self, file: IO[str]):
         self._header = ""
         self._metadata: List[Tuple[str, str]] = []
@@ -137,6 +143,15 @@ class HMMERModel:
 
 
 class HMMERParser:
+    """
+    HMMER ASCII file parser.
+
+    Parameters
+    ----------
+    file
+        File path or stream.
+    """
+
     def __init__(self, file: Union[str, pathlib.Path, IO[str]]):
         if isinstance(file, str):
             file = pathlib.Path(file)
@@ -194,12 +209,12 @@ def open_hmmer(file: Union[str, pathlib.Path, IO[str]]) -> HMMERParser:
 
     Parameters
     ----------
-    file : Union[str, pathlib.Path, IO[str]]
+    file
         File path or IO stream.
 
     Returns
     -------
-    parser : HMMERParser
+    parser
         HMMER parser.
     """
     return HMMERParser(file)
