@@ -1,7 +1,7 @@
 from ._cli import cli
+from ._misc import num_models
 from ._reader import HMMERModel, HMMERParser, ParsingError, open_hmmer
 from ._testit import test
-from ._misc import num_models
 from ._version import __version__
 
 __all__ = [
