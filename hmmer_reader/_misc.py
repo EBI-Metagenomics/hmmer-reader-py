@@ -34,7 +34,7 @@ def fetch_metadata(filepath: Path):
 
         if not acc.exists():
             cmd = f"cat {name}"
-            cmd += ' | awk \' { print "." > "' + str(acc) + "\" } '"
+            cmd += ' | awk \' { print "-" > "' + str(acc) + "\" } '"
             check_call(cmd, shell=True)
 
         meta = tmpd / "meta.tsv"
