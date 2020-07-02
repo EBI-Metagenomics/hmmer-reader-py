@@ -23,12 +23,14 @@ def fetch_metadata(filepath: Path):
         name = tmpd / "NAME"
         acc = tmpd / "ACC"
         leng = tmpd / "LENG"
+        alph = tmpd / "ALPH"
 
         cmd = f'grep -E "^(NAME  |ACC  |LENG  )" {filepath} | '
         cmd += "awk 'BEGIN { "
         cmd += f'patt["{name}"] = "^NAME  "; '
         cmd += f'patt["{acc}"] = "^ACC   "; '
         cmd += f'patt["{leng}"] = "^LENG  "; '
+        cmd += f'patt["{alph}"] = "^ALPH  "; '
         cmd += "} { for (i in patt) if ($0 ~ patt[i]) print $2 > i; }'"
         check_call(cmd, shell=True)
 
@@ -38,11 +40,11 @@ def fetch_metadata(filepath: Path):
             check_call(cmd, shell=True)
 
         meta = tmpd / "meta.tsv"
-        check_call(f"paste {name} {acc} {leng} > {meta}", shell=True)
+        check_call(f"paste {name} {acc} {leng} {alph} > {meta}", shell=True)
         return read_csv(
             meta,
             sep="\t",
             header=None,
-            names=["NAME", "ACC", "LENG"],
-            dtype={"NAME": str, "ACC": str, "LENG": int},
+            names=["NAME", "ACC", "LENG", "ALPH"],
+            dtype={"NAME": str, "ACC": str, "LENG": int, "ALPH": str},
         )
