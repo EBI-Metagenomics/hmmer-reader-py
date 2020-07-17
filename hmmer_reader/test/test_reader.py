@@ -6,8 +6,8 @@ import pytest
 
 
 def test_hmmer_reader():
-    from hmmer_reader import open_hmmer
     import hmmer_reader.test
+    from hmmer_reader import open_hmmer
 
     buffer = pkg_resources.open_binary(hmmer_reader.test, "PF02545.hmm.gz")
 
@@ -31,8 +31,8 @@ def test_hmmer_reader():
 
 
 def test_hmmer_reader_nt():
-    from hmmer_reader import open_hmmer
     import hmmer_reader.test
+    from hmmer_reader import open_hmmer
 
     buffer = pkg_resources.open_binary(hmmer_reader.test, "2OG-FeII_Oxy_3-nt.hmm.gz")
 
@@ -56,8 +56,8 @@ def test_hmmer_reader_nt():
 
 
 def test_hmmer_prof():
-    from hmmer_reader import open_hmmer
     import hmmer_reader.test
+    from hmmer_reader import open_hmmer
 
     buffer = pkg_resources.open_binary(hmmer_reader.test, "three-profs.hmm.gz")
 
@@ -87,8 +87,8 @@ def test_hmmer_prof():
 
 
 def test_hmmer_reader_invalid_file():
-    from hmmer_reader import open_hmmer, ParsingError
     import hmmer_reader.test
+    from hmmer_reader import ParsingError, open_hmmer
 
     buffer = pkg_resources.open_text(hmmer_reader.test, "A0ALD9.fasta")
     hmmfile = open_hmmer(buffer)
@@ -100,8 +100,8 @@ def test_hmmer_reader_invalid_file():
 
 
 def test_hmmer_reader_corrupted_file():
-    from hmmer_reader import open_hmmer
     import hmmer_reader.test
+    from hmmer_reader import open_hmmer
 
     buffer = pkg_resources.open_text(hmmer_reader.test, "PF02545.hmm.br.corrupted")
     hmmfile = open_hmmer(buffer)

@@ -14,9 +14,10 @@ def num_models(filepath: Path) -> int:
 
 
 def fetch_metadata(filepath: Path):
-    from pandas import read_csv
     import tempfile
     from subprocess import check_call
+
+    from pandas import read_csv
 
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpd = Path(tmpdir)
