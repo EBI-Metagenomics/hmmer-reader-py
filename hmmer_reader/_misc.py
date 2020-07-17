@@ -25,7 +25,7 @@ def fetch_metadata(filepath: Path):
         leng = tmpd / "LENG"
         alph = tmpd / "ALPH"
 
-        cmd = f'grep -E "^(NAME  |ACC  |LENG  )" {filepath} | '
+        cmd = f'grep -E "^(NAME  |ACC  |LENG  |ALPH  )" {filepath} | '
         cmd += "awk 'BEGIN { "
         cmd += f'patt["{name}"] = "^NAME  "; '
         cmd += f'patt["{acc}"] = "^ACC   "; '
