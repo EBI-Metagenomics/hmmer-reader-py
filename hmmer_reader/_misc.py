@@ -1,3 +1,5 @@
+import os
+from collections import OrderedDict
 from pathlib import Path
 
 __all__ = ["num_models", "fetch_metadata"]
@@ -17,7 +19,12 @@ def fetch_metadata(filepath: Path):
     import tempfile
     from subprocess import check_call
 
-    from pandas import read_csv
+    from pandas import DataFrame, read_csv
+
+    metadata = OrderedDict([("NAME", str), ("ACC", str), ("LENG", int), ("ALPH", str)])
+
+    if os.stat(filepath).st_size == 0:
+        return DataFrame(columns=metadata.keys(), dtype=object)
 
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpd = Path(tmpdir)
@@ -46,6 +53,6 @@ def fetch_metadata(filepath: Path):
             meta,
             sep="\t",
             header=None,
-            names=["NAME", "ACC", "LENG", "ALPH"],
-            dtype={"NAME": str, "ACC": str, "LENG": int, "ALPH": str},
+            names=list(metadata.keys()),
+            dtype=metadata,
         )
