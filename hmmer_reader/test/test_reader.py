@@ -1,15 +1,18 @@
 import gzip
+import os
 from io import StringIO
+from pathlib import Path
 
 import importlib_resources as pkg_resources
 import pytest
+from numpy import dtype
+
+import hmmer_reader
+from hmmer_reader import ParsingError, fetch_metadata, open_hmmer
 
 
 def test_hmmer_reader():
-    import hmmer_reader.test
-    from hmmer_reader import open_hmmer
-
-    buffer = pkg_resources.open_binary(hmmer_reader.test, "PF02545.hmm.gz")
+    buffer = pkg_resources.open_binary(hmmer_reader.data, "PF02545.hmm.gz")
 
     content = gzip.decompress(buffer.read()).decode()
     hmmfile = open_hmmer(StringIO(content))
@@ -31,10 +34,7 @@ def test_hmmer_reader():
 
 
 def test_hmmer_reader_nt():
-    import hmmer_reader.test
-    from hmmer_reader import open_hmmer
-
-    buffer = pkg_resources.open_binary(hmmer_reader.test, "2OG-FeII_Oxy_3-nt.hmm.gz")
+    buffer = pkg_resources.open_binary(hmmer_reader.data, "2OG-FeII_Oxy_3-nt.hmm.gz")
 
     content = gzip.decompress(buffer.read()).decode()
     hmmfile = open_hmmer(StringIO(content))
@@ -56,10 +56,7 @@ def test_hmmer_reader_nt():
 
 
 def test_hmmer_prof():
-    import hmmer_reader.test
-    from hmmer_reader import open_hmmer
-
-    buffer = pkg_resources.open_binary(hmmer_reader.test, "three-profs.hmm.gz")
+    buffer = pkg_resources.open_binary(hmmer_reader.data, "three-profs.hmm.gz")
 
     content = gzip.decompress(buffer.read()).decode()
     hmmfile = open_hmmer(StringIO(content))
@@ -87,10 +84,7 @@ def test_hmmer_prof():
 
 
 def test_hmmer_reader_invalid_file():
-    import hmmer_reader.test
-    from hmmer_reader import ParsingError, open_hmmer
-
-    buffer = pkg_resources.open_text(hmmer_reader.test, "A0ALD9.fasta")
+    buffer = pkg_resources.open_text(hmmer_reader.data, "A0ALD9.fasta")
     hmmfile = open_hmmer(buffer)
 
     with pytest.raises(ParsingError):
@@ -100,10 +94,7 @@ def test_hmmer_reader_invalid_file():
 
 
 def test_hmmer_reader_corrupted_file():
-    import hmmer_reader.test
-    from hmmer_reader import open_hmmer
-
-    buffer = pkg_resources.open_text(hmmer_reader.test, "PF02545.hmm.br.corrupted")
+    buffer = pkg_resources.open_text(hmmer_reader.data, "PF02545.hmm.br.corrupted")
     hmmfile = open_hmmer(buffer)
 
     with pytest.raises(UnicodeDecodeError):
@@ -112,11 +103,93 @@ def test_hmmer_reader_corrupted_file():
     buffer.close()
 
 
-# def test_hmmer_reader_fetch_metadata():
-#     import hmmer_reader.test
-#     from hmmer_reader import open_hmmer
+def test_hmmer_reader_fetch_metadata1(tmp_path: Path):
+    buffer = pkg_resources.open_binary(hmmer_reader.data, "PF02545.hmm.gz")
 
-#     buffer = pkg_resources.open_binary(hmmer_reader.test, "PF02545.hmm.gz")
+    content = gzip.decompress(buffer.read()).decode()
+    os.chdir(tmp_path)
+    with open("db.hmm", "w") as file:
+        file.write(content)
+
+    df = fetch_metadata(tmp_path / "db.hmm")
+    assert df.shape == (1, 4)
+    assert df["NAME"].values[0] == "Maf"
+    assert df["ACC"].values[0] == "PF02545.14"
+    assert df["LENG"].values[0] == 166
+    assert df["ALPH"].values[0] == "amino"
+
+    assert df["NAME"].dtype is dtype("O")
+    assert df["ACC"].dtype is dtype("O")
+    assert df["LENG"].dtype is dtype("int32")
+    assert df["ALPH"].dtype is dtype("O")
+
+    assert tuple(df.columns) == ("NAME", "ACC", "LENG", "ALPH")
+
+
+def test_hmmer_reader_fetch_metadata2(tmp_path: Path):
+    buffer = pkg_resources.open_binary(hmmer_reader.data, "three-profs.hmm.gz")
+
+    content = gzip.decompress(buffer.read()).decode()
+    os.chdir(tmp_path)
+    with open("db.hmm", "w") as file:
+        file.write(content)
+
+    df = fetch_metadata(tmp_path / "db.hmm")
+    assert df.shape == (3, 4)
+
+    assert df["NAME"].values[0] == "1-cysPrx_C"
+    assert df["ACC"].values[0] == "PF10417.9"
+    assert df["LENG"].values[0] == 40
+    assert df["ALPH"].values[0] == "amino"
+
+    assert df["NAME"].values[1] == "120_Rick_ant"
+    assert df["ACC"].values[1] == "PF12574.8"
+    assert df["LENG"].values[1] == 235
+    assert df["ALPH"].values[1] == "amino"
+
+    assert df["NAME"].values[2] == "12TM_1"
+    assert df["ACC"].values[2] == "PF09847.9"
+    assert df["LENG"].values[2] == 449
+    assert df["ALPH"].values[2] == "amino"
+
+    assert df["NAME"].dtype is dtype("O")
+    assert df["ACC"].dtype is dtype("O")
+    assert df["LENG"].dtype is dtype("int32")
+    assert df["ALPH"].dtype is dtype("O")
+
+    assert tuple(df.columns) == ("NAME", "ACC", "LENG", "ALPH")
+
+
+# def test_hmmer_reader_fetch_metadata_corrupted1(tmp_path: Path):
+#     buffer = pkg_resources.open_binary(hmmer_reader.data, "corrupted1.hmm.gz")
 
 #     content = gzip.decompress(buffer.read()).decode()
-#     hmmfile = open_hmmer(StringIO(content))
+#     os.chdir(tmp_path)
+#     with open("db.hmm", "w") as file:
+#         file.write(content)
+
+#     df = fetch_metadata(tmp_path / "db.hmm")
+#     breakpoint()
+#     assert df.shape == (3, 4)
+
+#     assert df["NAME"].values[0] == "1-cysPrx_C"
+#     assert df["ACC"].values[0] == "PF10417.9"
+#     assert df["LENG"].values[0] == 40
+#     assert df["ALPH"].values[0] == "amino"
+
+#     assert df["NAME"].values[1] == "120_Rick_ant"
+#     assert df["ACC"].values[1] == "PF12574.8"
+#     assert df["LENG"].values[1] == 235
+#     assert df["ALPH"].values[1] == "amino"
+
+#     assert df["NAME"].values[2] == "12TM_1"
+#     assert df["ACC"].values[2] == "PF09847.9"
+#     assert df["LENG"].values[2] == 449
+#     assert df["ALPH"].values[2] == "amino"
+
+#     assert df["NAME"].dtype is dtype("O")
+#     assert df["ACC"].dtype is dtype("O")
+#     assert df["LENG"].dtype is dtype("int32")
+#     assert df["ALPH"].dtype is dtype("O")
+
+#     assert tuple(df.columns) == ("NAME", "ACC", "LENG", "ALPH")

@@ -2,6 +2,8 @@ import os
 from collections import OrderedDict
 from pathlib import Path
 
+from numpy import int32
+
 __all__ = ["num_models", "fetch_metadata"]
 
 
@@ -21,7 +23,9 @@ def fetch_metadata(filepath: Path):
 
     from pandas import DataFrame, read_csv
 
-    metadata = OrderedDict([("NAME", str), ("ACC", str), ("LENG", int), ("ALPH", str)])
+    metadata = OrderedDict(
+        [("NAME", str), ("ACC", str), ("LENG", int32), ("ALPH", str)]
+    )
 
     if os.stat(filepath).st_size == 0:
         return DataFrame(columns=metadata.keys(), dtype=object)

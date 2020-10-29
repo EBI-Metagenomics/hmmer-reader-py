@@ -9,7 +9,7 @@ import hmmer_reader
 
 def test_cli_frame():
 
-    buffer = pkg_resources.open_binary(hmmer_reader.test, "PF02545.hmm.gz")
+    buffer = pkg_resources.open_binary(hmmer_reader.data, "PF02545.hmm.gz")
     text = gzip.decompress(buffer.read()).decode()
 
     runner = CliRunner()
@@ -72,7 +72,7 @@ def test_cli_frame():
 
 def test_cli_exclusive_opts():
 
-    buffer = pkg_resources.open_binary(hmmer_reader.test, "PF02545.hmm.gz")
+    buffer = pkg_resources.open_binary(hmmer_reader.data, "PF02545.hmm.gz")
     text = gzip.decompress(buffer.read()).decode()
 
     runner = CliRunner()
@@ -90,7 +90,7 @@ def test_cli_exclusive_opts():
 
 def test_cli_out_of_range():
 
-    buffer = pkg_resources.open_binary(hmmer_reader.test, "PF02545.hmm.gz")
+    buffer = pkg_resources.open_binary(hmmer_reader.data, "PF02545.hmm.gz")
     text = gzip.decompress(buffer.read()).decode()
 
     runner = CliRunner()

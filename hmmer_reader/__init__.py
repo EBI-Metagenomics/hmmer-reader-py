@@ -1,3 +1,4 @@
+from . import data
 from ._cli import cli
 from ._misc import fetch_metadata, num_models
 from ._reader import HMMERModel, HMMERParser, ParsingError, open_hmmer
@@ -22,6 +23,7 @@ __all__ = [
     "ParsingError",
     "__version__",
     "cli",
+    "data",
     "fetch_metadata",
     "num_models",
     "open_hmmer",
