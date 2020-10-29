@@ -110,3 +110,13 @@ def test_hmmer_reader_corrupted_file():
         hmmfile.read_model()
 
     buffer.close()
+
+
+# def test_hmmer_reader_fetch_metadata():
+#     import hmmer_reader.test
+#     from hmmer_reader import open_hmmer
+
+#     buffer = pkg_resources.open_binary(hmmer_reader.test, "PF02545.hmm.gz")
+
+#     content = gzip.decompress(buffer.read()).decode()
+#     hmmfile = open_hmmer(StringIO(content))

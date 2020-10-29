@@ -1,8 +1,13 @@
 [build-system]
-requires = ["setuptools >= 47.1.1", "wheel >= 0.34.2"]
+requires = ["setuptools>=49.3.0", "wheel>=0.34.2", "cffi>=1.14.2",
+    "pytest-runner>=5.2"]
 build-backend = "setuptools.build_meta"
 
 [tool.isort]
 profile = "black"
 src_paths = ["hmmer_reader"]
-known_third_party = ["click", "pandas", "importlib-resources", "pytest"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "if __name__ == .__main__.:",
+]
