@@ -4,45 +4,58 @@ git:
   depth: false
 env:
   global:
-    - CIBW_SKIP="pp* cp27-* cp34-* cp35-* cp36-* *i686* *-win32"
-    - CIBW_TEST_COMMAND="bash {project}/ci/test"
+  - CIBW_SKIP="pp* cp27-* cp34-* cp35-* cp36-* *i686* *-win32"
+  - CIBW_TEST_COMMAND="bash {project}/ci/test"
 matrix:
   include:
-    - os: linux
-      services: docker
-      before_install:
-        - python3 -m pip install --upgrade pip setuptools
-    - os: osx
-      osx_image: xcode11.2
-      language: shell
-      before_install:
-        - python3 -m pip install --upgrade pip setuptools
+  - os: linux
+    services: docker
+    before_install:
+    - python3 -m pip install --upgrade pip setuptools
+  - os: osx
+    osx_image: xcode11.2
+    language: shell
+    before_install:
+    - python3 -m pip install --upgrade pip setuptools
 addons:
   apt:
     packages:
-      - libffi-dev
-      - libffi6
-      - cmake
+    - libffi-dev
+    - libffi6
+    - cmake
 install:
-  - python3 -m pip install flake8 black isort pytest --upgrade
-  - flake8
-  - black --check .
-  - isort --check-only .
-  - python3 setup.py test
-  - python3 -m pip install cibuildwheel
+- python3 -m pip install flake8 black isort pytest --upgrade
+- flake8
+- black --check .
+- isort --check-only .
+- python3 setup.py test
+- python3 -m pip install cibuildwheel
 before_script:
-  - git clean -xdfq
+- git clean -xdfq
 script:
-  - python3 -m cibuildwheel --output-dir wheelhouse
+- python3 -m cibuildwheel --output-dir wheelhouse
 after_success:
-  - |
-    if [ "${TRAVIS_TAG:-}" != "" ]; then
-      python3 -m pip install twine -U
-      python3 -m twine upload --skip-existing wheelhouse/*
-    fi
+- |
+  if [ "${TRAVIS_TAG:-}" != "" ]; then
+    python3 -m pip install twine -U
+    python3 -m twine upload --skip-existing wheelhouse/*
+  fi
 notifications:
   email:
     recipients:
-      - danilo.horta@pm.me
+    - danilo.horta@pm.me
     on_success: never
     on_failure: always
+deploy:
+  provider: pypi
+  user: dhorta
+  skip_existing: true
+  skip_cleanup: true
+  distributions: sdist
+  password:
+    secure: hvvB8U1NPCpnvSl2hVveXNjZuTNS6bnNQ1z6Tbgh4ImqW84lSqAvtbxML1uJBfvThUAdHQRfqNVC/5sKgNa+boJR7sJNiy6hC3eL97M03ar6ZxwvYpDo/4SaO3/2tXraQ+M7bucSKPsPqiTbcR3qL80WkjVf4Ag8hXdF/jKZ8mKecD9mfcy5beLA6R7dS/GKYxc5WBB6X0A7Jva8gGVqFkES6ggPbeZwKGa3lvqDYSwacBQr/o+fuua1jT6aBlA51n5U0DueXvH1/KilhVFBhPToAjMD7ObBzrNw9ViEgKoGS6H5e2hg8311RH35RVg4tl3liWXxvPBnuyxmA3iZCZ0NhXrRk3CaPmcEut2Q/qmMG8IDRQaQAWLhAsJ16l+jmx7WXsfHdXHGaQb+jvjwgfsH8249s3eGqqZt9hv2xWRT+PoeA+9je0f3fqG28cwcx/7+zlEHSTbtdVafW9RcxgmAl8Od4X01cUx+vgKc4D930nHLK0ikOKZn4LaJiBoivPZnXmmzWiNQpMaRR9j+qZ/22Kn51G9zRA8rOkTKV44jsaZwcJcxygP4jP/eN18nYOeT8md1Y+Bp/LcsJJliV20tIXqBhuNjkywaq3oi/k3IXmtQ8s2haVwFXZ6HvP1SzEyd1dylo5kEbfgMiyFV3iqx+bm5RIA0ZCCnG/7CRFc=
+  on:
+    tags: true
+    repo: EBI-Metagenomics/hmmer-reader-py
+    branch: master
+    condition: $TRAVIS_OS_NAME = linux
