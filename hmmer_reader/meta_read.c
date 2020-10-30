@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
@@ -5,6 +6,9 @@
 #ifndef MIN
 #define MIN(X, Y) ((X) < (Y) ? (X) : (Y))
 #endif
+
+#define ERR_FILE 1
+#define ERR_PARSER 2
 
 enum token
 {
@@ -33,20 +37,21 @@ static inline bool string_equal(struct string* str, char const* data, size_t siz
 
 struct HMMFile
 {
-    FILE*         file;
-    struct string token;
-    size_t        line_num;
-    char          line[256 * 1024];
+    FILE*          file;
+    FILE* restrict estream;
+    struct string  token;
+    size_t         line_num;
+    char           line[256 * 1024];
 };
 
 static inline void hmmfile_error(struct HMMFile const* hmmfile, char const* msg)
 {
-    fprintf(stderr, "Error: %s\n", msg);
+    fprintf(hmmfile->estream, "%s\n", msg);
 }
 
 static inline void hmmfile_parser_error(struct HMMFile const* hmmfile)
 {
-    fprintf(stderr, "Error: could not parse line %zu\n", hmmfile->line_num);
+    fprintf(hmmfile->estream, "could not parse line %zu\n", hmmfile->line_num);
 }
 
 static inline int hmmfile_next_line(struct HMMFile* hmmfile)
@@ -72,10 +77,11 @@ static int hmmfile_next_token(struct HMMFile* hmmfile, bool skip_space)
     return hmmfile->token.size == 0;
 }
 
-static inline struct HMMFile hmmfile_open(char const* restrict path)
+static inline struct HMMFile hmmfile_open(char const* restrict path, FILE* restrict estream)
 {
     struct HMMFile hmmfile;
     hmmfile.file = fopen(path, "r");
+    hmmfile.estream = estream;
     hmmfile.token.data = NULL;
     hmmfile.token.size = 0;
     hmmfile.line_num = 0;
@@ -88,11 +94,11 @@ static int hmmfile_check_eof(struct HMMFile* hmmfile)
 {
     if (!feof(hmmfile->file)) {
         if (ferror(hmmfile->file)) {
-            perror("Error: ");
-            return 1;
+            fprintf(hmmfile->estream, "file error (%s)\n", strerror(errno));
+            return ERR_FILE;
         } else {
             hmmfile_error(hmmfile, "stream ended prematurely");
-            return 1;
+            return ERR_FILE;
         }
     }
     return 0;
@@ -126,7 +132,10 @@ struct meta
     char          buffer[META_BUFSIZE];
 };
 
-static inline void meta_print_header(struct meta const* meta) { printf("NAME,ACC,LENG,ALPH"); }
+static inline void meta_print_header(struct meta const* meta, FILE* restrict ostream)
+{
+    fprintf(ostream, "NAME\tACC\tLENG\tALPH\n");
+}
 
 static void meta_init(struct meta* meta)
 {
@@ -169,11 +178,11 @@ static void meta_set(struct meta* meta, enum token token, struct string token_st
     }
 }
 
-static inline void meta_print(struct meta const* meta)
+static inline void meta_print(struct meta const* meta, FILE* restrict ostream)
 {
-    printf("%.*s,%.*s,%.*s,%.*s\n", (int)meta->name.size, meta->name.data, (int)meta->acc.size,
-           meta->acc.data, (int)meta->leng.size, meta->leng.data, (int)meta->alph.size,
-           meta->alph.data);
+    fprintf(ostream, "%.*s\t%.*s\t%.*s\t%.*s\n", (int)meta->name.size, meta->name.data,
+            (int)meta->acc.size, meta->acc.data, (int)meta->leng.size, meta->leng.data,
+            (int)meta->alph.size, meta->alph.data);
 }
 
 static inline bool meta_allset(struct meta const* meta)
@@ -182,15 +191,18 @@ static inline bool meta_allset(struct meta const* meta)
             meta->alph.size > 0);
 }
 
-int meta_read(char const* filepath)
+int meta_read(char const* filepath, FILE* restrict ostream, FILE* restrict estream)
 {
-    struct HMMFile hmmfile = hmmfile_open(filepath);
+    struct HMMFile hmmfile = hmmfile_open(filepath, estream);
+    if (!hmmfile.file)
+        return ERR_FILE;
 
     struct meta meta;
     meta_init(&meta);
-    meta_print_header(&meta);
+    meta_print_header(&meta, ostream);
 
     enum token token = UNK;
+    int        err = 0;
 
     while (hmmfile_next_line(&hmmfile)) {
         if (hmmfile_next_token(&hmmfile, false)) {
@@ -202,28 +214,31 @@ int meta_read(char const* filepath)
             hmmfile.token.data += hmmfile.token.size;
             if (hmmfile_next_token(&hmmfile, true)) {
                 hmmfile_parser_error(&hmmfile);
+                err = ERR_PARSER;
                 goto err;
             }
             meta_set(&meta, token, hmmfile.token);
         } else if (token == END) {
             if (!meta_allset(&meta)) {
                 hmmfile_error(&hmmfile, "some metadata is missing");
+                err = ERR_PARSER;
                 goto err;
             }
-            meta_print(&meta);
+            meta_print(&meta, ostream);
             meta_reset(&meta);
         }
     }
     if (token != END) {
         hmmfile_error(&hmmfile, "ending token is missing");
+        err = ERR_PARSER;
         goto err;
     }
 
-    int err = hmmfile_check_eof(&hmmfile);
+    err = hmmfile_check_eof(&hmmfile);
     hmmfile_close(&hmmfile);
     return err;
 
 err:
     hmmfile_close(&hmmfile);
-    return 1;
+    return err;
 }

@@ -1,8 +1,12 @@
 import os
 from collections import OrderedDict
 from pathlib import Path
+from tempfile import TemporaryFile
 
 from numpy import int32
+from pandas import DataFrame, read_csv
+
+from ._reader import ParsingError
 
 __all__ = ["num_models", "fetch_metadata"]
 
@@ -17,11 +21,8 @@ def num_models(filepath: Path) -> int:
     return int(output.strip())
 
 
-def fetch_metadata(filepath: Path):
-    import tempfile
-    from subprocess import check_call
-
-    from pandas import DataFrame, read_csv
+def fetch_metadata(filepath: Path) -> DataFrame:
+    from ._ffi import lib
 
     metadata = OrderedDict(
         [("NAME", str), ("ACC", str), ("LENG", int32), ("ALPH", str)]
@@ -30,33 +31,22 @@ def fetch_metadata(filepath: Path):
     if os.stat(filepath).st_size == 0:
         return DataFrame(columns=metadata.keys(), dtype=object)
 
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmpd = Path(tmpdir)
-        name = tmpd / "NAME"
-        acc = tmpd / "ACC"
-        leng = tmpd / "LENG"
-        alph = tmpd / "ALPH"
+    with TemporaryFile() as file, TemporaryFile() as estream:
 
-        cmd = f'grep -E "^(NAME  |ACC  |LENG  |ALPH  )" {filepath} | '
-        cmd += "awk 'BEGIN { "
-        cmd += f'patt["{name}"] = "^NAME  "; '
-        cmd += f'patt["{acc}"] = "^ACC   "; '
-        cmd += f'patt["{leng}"] = "^LENG  "; '
-        cmd += f'patt["{alph}"] = "^ALPH  "; '
-        cmd += "} { for (i in patt) if ($0 ~ patt[i]) print $2 > i; }'"
-        check_call(cmd, shell=True)
+        err: int = lib.meta_read(bytes(filepath), file, estream)
+        if err != 0:
+            estream.seek(0)
+            emsg = estream.read().decode().strip()
+            if err == 1:
+                raise ParsingError(emsg)
+            raise RuntimeError(emsg)
 
-        if not acc.exists():
-            cmd = f"cat {name}"
-            cmd += ' | awk \' { print "-" > "' + str(acc) + "\" } '"
-            check_call(cmd, shell=True)
+        file.seek(0)
 
-        meta = tmpd / "meta.tsv"
-        check_call(f"paste {name} {acc} {leng} {alph} > {meta}", shell=True)
         return read_csv(
-            meta,
+            file,
             sep="\t",
-            header=None,
+            header=0,
             names=list(metadata.keys()),
             dtype=metadata,
         )

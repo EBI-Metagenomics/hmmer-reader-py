@@ -160,36 +160,37 @@ def test_hmmer_reader_fetch_metadata2(tmp_path: Path):
     assert tuple(df.columns) == ("NAME", "ACC", "LENG", "ALPH")
 
 
-# def test_hmmer_reader_fetch_metadata_corrupted1(tmp_path: Path):
-#     buffer = pkg_resources.open_binary(hmmer_reader.data, "corrupted1.hmm.gz")
+def test_hmmer_reader_fetch_metadata_corrupted1(tmp_path: Path):
+    buffer = pkg_resources.open_binary(hmmer_reader.data, "corrupted1.hmm.gz")
 
-#     content = gzip.decompress(buffer.read()).decode()
-#     os.chdir(tmp_path)
-#     with open("db.hmm", "w") as file:
-#         file.write(content)
+    content = gzip.decompress(buffer.read()).decode()
+    os.chdir(tmp_path)
+    with open("db.hmm", "w") as file:
+        file.write(content)
 
-#     df = fetch_metadata(tmp_path / "db.hmm")
-#     breakpoint()
-#     assert df.shape == (3, 4)
+    with pytest.raises(ParsingError):
+        fetch_metadata(tmp_path / "db.hmm")
 
-#     assert df["NAME"].values[0] == "1-cysPrx_C"
-#     assert df["ACC"].values[0] == "PF10417.9"
-#     assert df["LENG"].values[0] == 40
-#     assert df["ALPH"].values[0] == "amino"
 
-#     assert df["NAME"].values[1] == "120_Rick_ant"
-#     assert df["ACC"].values[1] == "PF12574.8"
-#     assert df["LENG"].values[1] == 235
-#     assert df["ALPH"].values[1] == "amino"
+def test_hmmer_reader_fetch_metadata_corrupted2(tmp_path: Path):
+    buffer = pkg_resources.open_binary(hmmer_reader.data, "corrupted2.hmm.gz")
 
-#     assert df["NAME"].values[2] == "12TM_1"
-#     assert df["ACC"].values[2] == "PF09847.9"
-#     assert df["LENG"].values[2] == 449
-#     assert df["ALPH"].values[2] == "amino"
+    content = gzip.decompress(buffer.read()).decode()
+    os.chdir(tmp_path)
+    with open("db.hmm", "w") as file:
+        file.write(content)
 
-#     assert df["NAME"].dtype is dtype("O")
-#     assert df["ACC"].dtype is dtype("O")
-#     assert df["LENG"].dtype is dtype("int32")
-#     assert df["ALPH"].dtype is dtype("O")
+    with pytest.raises(ParsingError):
+        fetch_metadata(tmp_path / "db.hmm")
 
-#     assert tuple(df.columns) == ("NAME", "ACC", "LENG", "ALPH")
+
+def test_hmmer_reader_fetch_metadata_corrupted3(tmp_path: Path):
+    buffer = pkg_resources.open_binary(hmmer_reader.data, "corrupted3.hmm.gz")
+
+    content = gzip.decompress(buffer.read()).decode()
+    os.chdir(tmp_path)
+    with open("db.hmm", "w") as file:
+        file.write(content)
+
+    with pytest.raises(ParsingError):
+        fetch_metadata(tmp_path / "db.hmm")
