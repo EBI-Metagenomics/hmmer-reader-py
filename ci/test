@@ -1,0 +1,3 @@
+#!/bin/bash
+
+(cd ~/ && python -c "import hmmer_reader; import sys; sys.exit(hmmer_reader.test())")
