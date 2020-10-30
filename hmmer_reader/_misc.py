@@ -37,7 +37,7 @@ def fetch_metadata(filepath: Path) -> DataFrame:
         if err != 0:
             estream.seek(0)
             emsg = estream.read().decode().strip()
-            if err == 1:
+            if err == 2:
                 raise ParsingError(emsg)
             raise RuntimeError(emsg)
 
