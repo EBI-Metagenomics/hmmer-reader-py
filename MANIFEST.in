@@ -11,4 +11,3 @@ include hmmer_reader/data/corrupted3.hmm.gz
 include hmmer_reader/data/three-profs.hmm.gz
 include hmmer_reader/meta_read.c
 include hmmer_reader/meta_read.h
-include version.py
