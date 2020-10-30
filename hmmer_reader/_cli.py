@@ -1,14 +1,13 @@
 import click
 
 from ._click import command
-from ._version import __version__
 
 
 @click.command(
     cls=command(either=[("alphabet", "length", "match", "insert")]),
     context_settings=dict(help_option_names=["-h", "--help"]),
 )
-@click.version_option(__version__)
+@click.version_option()
 @click.argument("filepath", type=click.Path(exists=True, dir_okay=False))
 @click.option("--alphabet", help="Show the alphabet.", is_flag=True, default=None)
 @click.option("--length", help="Show the model length.", is_flag=True, default=None)
