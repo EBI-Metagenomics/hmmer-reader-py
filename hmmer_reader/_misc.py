@@ -17,12 +17,15 @@ def num_models(filepath: Path) -> int:
     """
     from subprocess import check_output
 
+    filepath = Path(filepath)
     output = check_output(f"grep 'HMMER3/f' {str(filepath)} | wc -l", shell=True)
     return int(output.strip())
 
 
 def fetch_metadata(filepath: Path) -> DataFrame:
     from ._ffi import lib
+
+    filepath = Path(filepath)
 
     metadata = OrderedDict(
         [("NAME", str), ("ACC", str), ("LENG", int32), ("ALPH", str)]
