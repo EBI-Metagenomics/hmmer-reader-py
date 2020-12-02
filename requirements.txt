@@ -1,0 +1,6 @@
+cffi
+importlib-resources
+pytest
+setuptools
+setuptools-scm[toml]
+wheel
