@@ -29,6 +29,7 @@ install:
 - black --check .
 - isort --check-only .
 - python3 -m pip install -r requirements.txt
+- python setup.py build_ext --inplace
 - pytest
 - python3 -m pip install cibuildwheel
 before_script:
