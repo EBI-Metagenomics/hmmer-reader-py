@@ -1,5 +1,7 @@
 cffi
+click
 importlib-resources
+pandas
 pytest
 setuptools
 setuptools-scm[toml]
